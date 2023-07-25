@@ -13,3 +13,21 @@ def tasks():
 def show_tasks(id):
 	task = Task.query.get(id)
 	return render_template("tasks/show.jinja", task=task)
+
+@tasks_blueprint.route("/tasks/new")
+def add_task():
+	users = User.query.all()
+	return render_template("tasks/new.jinja", users=users)
+
+@tasks_blueprint.route("/tasks", methods=['POST'])
+def create_task():
+	description = request.form['description']
+	user_id = request.form['user_id']
+	duration = request.form['duration']
+	completed = 'completed' in request.form
+
+	task = Task(description=description, user_id=user_id, duration=duration, completed=completed)
+
+	db.session.add(task)
+	db.session.commit()
+	return redirect('/tasks')
