@@ -31,3 +31,25 @@ def create_task():
 	db.session.add(task)
 	db.session.commit()
 	return redirect('/tasks')
+
+@tasks_blueprint.route("/tasks/<id>/edit")
+def edit_task(id):
+	users = User.query.all()
+	task = Task.query.get(id)
+	return render_template('tasks/edit.jinja', task=task, users=users)
+
+@tasks_blueprint.route("/tasks/<id>", methods=["POST"])
+def update_task(id):
+	description = request.form['description']
+	user_id = request.form['user_id']
+	duration = request.form['duration']
+	completed = 'completed' in request.form
+	
+	task = Task.query.get(id)
+	task.description = description
+	task.user_id = user_id
+	task.duration = duration
+	task.completed = completed
+
+	db.session.commit()
+	return redirect('/tasks')
