@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
 import os
 from dotenv import load_dotenv
 
@@ -13,79 +14,61 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://postgres:{PASSWORD}@local
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-class User(db.Model):
-	__tablename__ = "users"
-	id = db.Column(db.Integer, primary_key=True) # primary key will auto-increment id
-	first_name = db.Column(db.String(64))
-	last_name = db.Column(db.String(64))
-	tasks = db.relationship('Task', backref='user') # backref creates on the task a user property so you can do task.user
+from controllers.tasks_controller import tasks_blueprint
+app.register_blueprint(tasks_blueprint)
 
-	def __repr__(self):
-		return f'<User {self.id}: {self.first_name} {self.last_name}>'
+# @app.route("/")
+# def hello_world():
+# 	# delete all the rows
+# 	Task.query.delete() # immediately delete
+# 	User.query.delete()
 
-class Task(db.Model):
-	__tablename__ = "tasks"
-	id = db.Column(db.Integer, primary_key=True) # primary key will auto-increment id
-	description = db.Column(db.Text())
-	duration = db.Column(db.Integer)
-	completed = db.Column(db.Boolean, default=False)
-	user_id = db.Column(db.Integer, db.ForeignKey('users.id')) # table_name.primary_key_column
+# 	sky = User(first_name="Sky", last_name="Su")
+# 	db.session.add(sky) # stage changes
+# 	print("Sky before commit")
+# 	print(sky)
 
-	def __repr__(self):
-		return f'<Task {self.id}: {self.description}>'
+# 	jason = User(first_name="Jason", last_name="Sweeney")
+# 	db.session.add(jason) #stage changes
+# 	db.session.commit() # commit
+# 	print("Sky after commit")
+# 	print(sky)
 
-@app.route("/")
-def hello_world():
-	# delete all the rows
-	Task.query.delete() # immediately delete
-	User.query.delete()
+# 	# get all the users
+# 	users = User.query.all()
+# 	print("get all the users")
+# 	print(users)
 
-	sky = User(first_name="Sky", last_name="Su")
-	db.session.add(sky) # stage changes
-	print("Sky before commit")
-	print(sky)
+# 	# get a user by id
+# 	found_user = User.query.get(jason.id)
+# 	print(f"get user by id = {jason.id}")
+# 	print(found_user)
 
-	jason = User(first_name="Jason", last_name="Sweeney")
-	db.session.add(jason) #stage changes
-	db.session.commit() # commit
-	print("Sky after commit")
-	print(sky)
+# 	# create tasks
+# 	task1 = Task(description="Survive this lesson", duration=120, user=sky)
+# 	db.session.add(task1)
 
-	# get all the users
-	users = User.query.all()
-	print("get all the users")
-	print(users)
+# 	task2 = Task(description="Survive the next lesson", duration=90, completed=True, user=jason)
+# 	db.session.add(task2)
 
-	# get a user by id
-	found_user = User.query.get(jason.id)
-	print(f"get user by id = {jason.id}")
-	print(found_user)
+# 	db.session.commit()
 
-	# create tasks
-	task1 = Task(description="Survive this lesson", duration=120, user=sky)
-	db.session.add(task1)
+# 	#get all the tasks
+# 	all_tasks = Task.query.all()
+# 	print("get all the tasks")
+# 	print(all_tasks)
 
-	task2 = Task(description="Survive the next lesson", duration=90, completed=True, user=jason)
-	db.session.add(task2)
+# 	print("jason's tasks")
+# 	print(jason.tasks)
 
-	db.session.commit()
+# 	print("tasks[0]'s user")
+# 	print(all_tasks[0].user.first_name)
 
-	#get all the tasks
-	all_tasks = Task.query.all()
-	print("get all the tasks")
-	print(all_tasks)
+# 	# mark task1 as completed
+# 	task1.completed = True
+# 	db.session.commit()
 
-	print("jason's tasks")
-	print(jason.tasks)
+# 	db.session.delete(task2)
+# 	db.session.commit()
 
-	print("tasks[0]'s user")
-	print(all_tasks[0].user.first_name)
-
-	# mark task1 as completed
-	task1.completed = True
-	db.session.commit()
-
-	db.session.delete(task2)
-	db.session.commit()
-
-	return "Hello, World"
+	# return render_template("tasks/index.jinja" all_tasks=Task.query.all())
