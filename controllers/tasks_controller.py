@@ -8,3 +8,8 @@ tasks_blueprint = Blueprint("tasks", __name__)
 def tasks():
 	tasks = Task.query.all()
 	return render_template('tasks/index.jinja', tasks=tasks)
+
+@tasks_blueprint.route("/tasks/<id>")
+def show_tasks(id):
+	task = Task.query.get(id)
+	return render_template("tasks/show.jinja", task=task)
